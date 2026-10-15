@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunia Diftong & Padankan Diftong</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Fredoka & Quicksand for cute, playful typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Fredoka', 'Quicksand', sans-serif; 
+            cursor: default; 
+        }
+        
+        /* Colourful & Playful Animations */
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        .animate-float { animation: floatAnim 3.5s ease-in-out infinite; }
+
+        @keyframes sparkleBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .animate-sparkle { animation: sparkleBounce 1.8s ease-in-out infinite; }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.6); }
+        }
+        .pulse-glow { animation: pulseGlow 2.5s infinite; }
+
+        @keyframes rainbowBorder {
+            0% { border-color: #3b82f6; }
+            25% { border-color: #ec4899; }
+            50% { border-color: #8b5cf6; }
+            75% { border-color: #06b6d4; }
+            100% { border-color: #3b82f6; }
+        }
+        .rainbow-border { animation: rainbowBorder 6s linear infinite; }
+
+        /* Custom Magical Sparkling Cursor Effect */
+        .interactive-cursor {
+            width: 22px;
+            height: 22px;
+            border: 2.5px solid #2563eb;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            transition: transform 0.08s ease-out;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: rgba(37, 99, 235, 0.2);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+        }
+
+        .sparkle-particle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 9998;
+            animation: fadeOut 0.6s forwards ease-out;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1) translateY(0); }
+            100% { opacity: 0; transform: scale(0.2) translateY(-15px); }
+        }
+
+        .draggable-item { cursor: grab; user-select: none; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .draggable-item:active { cursor: grabbing; transform: scale(1.1) rotate(-2deg); }
+        .drop-zone { transition: all 0.25s ease; }
+        .drop-zone.drag-over { background-color: #eff6ff; border-color: #2563eb; transform: scale(1.04); box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50/40 to-pink-50/30 text-slate-800 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- Interactive Cursor Trail Element -->
+    <div id="cursorTrail" class="interactive-cursor hidden sm:block"></div>
+
+    <!-- Background Audio & Sound Effects -->
+    <audio id="bgMusic" src="laguselamatdatang.mp3" preload="auto" loop></audio>
+    <audio id="successSound" src="effect1.mp3" preload="auto"></audio>
+    
+    <!-- Floating Audio Control -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="musicToggleBtn" onclick="toggleBackgroundMusic()" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-pink-500 hover:from-blue-700 hover:to-pink-600 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition transform hover:scale-110 pulse-glow">
+            <svg id="musicIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 animate-spin" style="animation-duration: 4s;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+            <span id="musicText" class="text-sm font-bold pr-2">Muzik 🎵</span>
+        </button>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white/85 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-blue-100">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-pink-600">Dunia Diftong</h1>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 justify-center">
+                <button onclick="switchTab('home')" class="nav-btn px-4 py-2.5 rounded-2xl text-sm font-bold bg-blue-600 text-white shadow-sm transition transform hover:scale-105">Utama 🏠</button>
+                <button onclick="switchTab('games'); triggerAudioPlay();" class="nav-btn px-4 py-2.5 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition transform hover:scale-105">🎮 Mula Bermain</button>
+                <button onclick="switchTab('mod-guru')" class="nav-btn px-4 py-2.5 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition transform hover:scale-105">Mod Guru 👩‍🏫</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- Home Tab -->
+        <section id="tab-home" class="tab-content space-y-6">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-pink-500 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden border-4 border-white/20">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-48 h-48 bg-yellow-300/20 rounded-full blur-xl pointer-events-none"></div>
+                
+                <span class="inline-block bg-yellow-300 text-blue-900 font-extrabold text-xs uppercase px-4 py-1.5 rounded-full shadow-md mb-3 animate-sparkle">
+                    ⭐ Mari Belajar Bersama!
+                </span>
+                
+                <h2 class="text-3xl sm:text-5xl font-extrabold mb-3 tracking-wide leading-tight animate-float">
+                    Selamat Datang ke Padankan Diftong! 🎈
+                </h2>
+                
+                <p class="text-blue-100 text-base sm:text-lg max-w-2xl mb-4 leading-relaxed font-medium">
+                    Terokai dunia diftong (<span class="text-yellow-300 font-extrabold">ai</span>, <span class="text-pink-200 font-extrabold">au</span>, <span class="text-cyan-200 font-extrabold">oi</span>) dengan permainan interaktif beraneka warna, audio sebutan, serta aktiviti kolaboratif untuk murid.
+                </p>
+
+                <!-- Kata-Kata Semangat Box -->
+                <div class="bg-white/15 backdrop-blur-md rounded-2xl p-4 sm:p-5 max-w-2xl mb-8 border border-white/25 shadow-inner">
+                    <p class="text-yellow-200 font-extrabold text-base sm:text-lg flex items-center gap-2">
+                        <span>🌟 Kata-kata Semangat:</span>
+                    </p>
+                    <p class="text-white font-bold text-sm sm:text-base mt-1 italic">
+                        "Kamu sangat bijak dan berbakat! Setiap langkah kecil membawamu lebih dekat kepada kejayaan. Mari bermain, cuba dengan bersungguh-sungguh dan berseronok!" 💪✨
+                    </p>
+                </div>
+
+                <button onclick="switchTab('games'); triggerAudioPlay();" class="bg-white text-blue-700 hover:bg-yellow-300 hover:text-blue-900 px-8 py-4 rounded-2xl font-extrabold text-base shadow-xl transition transform hover:scale-105 flex items-center gap-3">
+                    <span>🎮 Mula Meneroka & Bermain</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-blue-100 hover:border-blue-300 hover:shadow-xl transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-blue-500 to-indigo-500 text-white rounded-2xl flex items-center justify-center font-extrabold text-2xl mb-4 shadow-md">01</div>
+                    <h3 class="font-extrabold text-xl mb-2 text-blue-900">Kenali Bunyi Diftong 🔊</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed font-medium">Dengar sebutan perkataan yang mengandungi diftong ai, au dan oi dengan jelas melalui audio interaktif.</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-pink-100 hover:border-pink-300 hover:shadow-xl transition transform hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-pink-500 to-rose-400 text-white rounded-2xl flex items-center justify-center font-extrabold text-2xl mb-4 shadow-md">02</div>
+                    <h3 class="font-extrabold text-xl mb-2 text-pink-900">Permainan Padankan Diftong 🎯</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed font-medium">Uji kemahiran anda melalui aktiviti seret dan lepas serta pilih jawapan untuk Tahap 1 dan Tahap 2.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Tab (Mula Bermain) -->
+        <section id="tab-games" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border-2 border-blue-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <span class="bg-gradient-to-r from-blue-500 via-indigo-500 to-pink-500 text-white text-xs px-4 py-1.5 rounded-full font-extrabold uppercase tracking-wider shadow-sm">Mod Permainan Aktif 🎮</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-blue-950 mt-2">🎮 Mula Bermain</h2>
+                    <p class="text-slate-600 text-sm font-medium">Pilih tahap permainan Padankan Diftong di bawah untuk mula menguji minda.</p>
+                </div>
+                <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-3.5 rounded-2xl border-2 border-blue-200 shadow-inner">
+                    <span class="text-sm font-extrabold text-blue-900">Jumlah Markah Keseluruhan: <span id="totalMatchScore" class="text-pink-600 text-2xl font-black ml-1">0</span> / 90</span>
+                </div>
+            </div>
+
+            <!-- Padankan Diftong Game Box -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border-4 rainbow-border">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-3.5 py-1 rounded-full font-bold">✨ Baharu & Interaktif</span>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-blue-900 mt-1">Padankan Diftong</h3>
+                        <p class="text-slate-600 text-sm mt-1 font-medium">Seret kad perkataan ke ruang jawapan di bawah gambar yang betul, atau klik kad kemudian klik ruang jawapan.</p>
+                    </div>
+                    <div class="flex gap-2.5">
+                        <button onclick="startMatchGame(1)" id="btnLevel1" class="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-extrabold rounded-2xl shadow-md transition transform hover:scale-105">Tahap 1 (Kenali) ⭐</button>
+                        <button onclick="startMatchGame(2)" id="btnLevel2" class="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-extrabold rounded-2xl shadow-md transition transform hover:scale-105">Tahap 2 (Cabaran) 🏆</button>
+                    </div>
+                </div>
+
+                <!-- Game Area Container -->
+                <div id="matchGameContainer" class="space-y-6">
+                    <div class="text-center py-16 text-slate-400 bg-gradient-to-b from-blue-50/50 to-indigo-50/30 rounded-3xl border-2 border-dashed border-blue-200">
+                        <div class="text-5xl mb-3 animate-bounce">🎯</div>
+                        <p class="font-extrabold text-blue-800 text-lg">Sila pilih Tahap 1 atau Tahap 2 di atas untuk memulakan permainan Padankan Diftong!</p>
+                        <p class="text-xs text-slate-500 font-medium mt-1">Mari tunjukkan kebolehan hebat kamu hari ini!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mod Guru Tab -->
+        <section id="tab-mod-guru" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border-2 border-slate-100 space-y-4">
+                <h2 class="text-2xl font-extrabold text-blue-950">Mod Guru 👩‍🏫</h2>
+                <p class="text-slate-600 text-sm font-medium">Urus tetapan pembelajaran, pantau markah murid dan akses panduan pengajaran.</p>
+                <div class="p-6 bg-blue-50/60 rounded-2xl border-2 border-blue-100">
+                    <p class="text-blue-900 font-bold">Mod Guru tersusun rapi dan semua ciri sedia ada masih boleh digunakan sepenuhnya tanpa gangguan.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 backdrop-blur-md border-t border-slate-100 py-6 text-center text-xs font-bold text-slate-500 mt-auto">
+        <p>&copy; 2026 — Padankan Diftong & Dunia Diftong. Hak cipta terpelihara.</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Custom Interactive Cursor & Colourful Sparkle Trail
+        const cursor = document.getElementById('cursorTrail');
+        window.addEventListener('mousemove', (e) => {
+            if (cursor) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            }
+
+            if (Math.random() < 0.2) {
+                const particle = document.createElement('div');
+                particle.className = 'sparkle-particle';
+                const size = Math.random() * 8 + 4;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                const colors = ['#3b82f6', '#ec4899', '#8b5cf6', '#06b6d4', '#f59e0b'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = e.clientX + (Math.random() * 12 - 6) + 'px';
+                particle.style.top = e.clientY + (Math.random() * 12 - 6) + 'px';
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 600);
+            }
+        });
+
+        // Background Music Control
+        let isMusicPlaying = false;
+        function toggleBackgroundMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicText = document.getElementById('musicText');
+            const musicIcon = document.getElementById('musicIcon');
+
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                musicText.innerText = "Muzik 🎵";
+                musicIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />';
+                musicIcon.classList.remove('animate-spin');
+            } else {
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    musicText.innerText = "Tutup 🎶";
+                    musicIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />';
+                    musicIcon.classList.add('animate-spin');
+                }).catch(e => {
+                    console.log("Audio play blocked or file not found:", e);
+                });
+            }
+        }
+
+        function triggerAudioPlay() {
+            if (!isMusicPlaying) {
+                toggleBackgroundMusic();
+            }
+        }
+
+        // Auto trigger music on first user interaction
+        const initAudioEvents = ['click', 'keydown', 'touchstart'];
+        function initAudioOnce() {
+            if (!isMusicPlaying) {
+                const bgMusic = document.getElementById('bgMusic');
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    document.getElementById('musicText').innerText = "Tutup 🎶";
+                    const musicIcon = document.getElementById('musicIcon');
+                    musicIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />';
+                    musicIcon.classList.add('animate-spin');
+                }).catch(err => {});
+            }
+            initAudioEvents.forEach(evt => window.removeEventListener(evt, initAudioOnce));
+        }
+        initAudioEvents.forEach(evt => window.addEventListener(evt, initAudioOnce, { once: true }));
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-4 py-2.5 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition transform hover:scale-105";
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.className = "nav-btn px-4 py-2.5 rounded-2xl text-sm font-bold bg-blue-600 text-white shadow-sm transition transform hover:scale-105";
+            }
+        }
+
+        // Padankan Diftong Game Data & State
+        const level1Data = [
+            { id: 'sungai', word: 'sungai', diftong: 'ai', image: 'images/sungai.png', audio: 'audio/sungai.mp3' },
+            { id: 'kerbau', word: 'kerbau', diftong: 'au', image: 'images/kerbau.png', audio: 'audio/kerbau.mp3' },
+            { id: 'pulau', word: 'pulau', diftong: 'au', image: 'images/pulau.png', audio: 'audio/pulau.mp3' }
+        ];
+
+        const level2Data = [
+            { id: 'pandai', word: 'pandai', diftong: 'ai', image: 'images/pandai.png', audio: 'audio/pandai.mp3' },
+            { id: 'pantai', word: 'pantai', diftong: 'ai', image: 'images/pantai.png', audio: 'audio/pantai.mp3' },
+            { id: 'pisau', word: 'pisau', diftong: 'au', image: 'images/pisau.png', audio: 'audio/pisau.mp3' },
+            { id: 'hijau', word: 'hijau', diftong: 'au', image: 'images/hijau.png', audio: 'audio/hijau.mp3' },
+            { id: 'amboi', word: 'amboi', diftong: 'oi', image: 'images/amboi.png', audio: 'audio/amboi.mp3' },
+            { id: 'sepoi', word: 'sepoi', diftong: 'oi', image: 'images/sepoi.png', audio: 'audio/sepoi.mp3' }
+        ];
+
+        let currentLevel = 1;
+        let gameQuestions = [];
+        let scoreL1 = 0;
+        let scoreL2 = 0;
+        let matchedCount = 0;
+        let selectedWordCard = null;
+
+        function startMatchGame(level) {
+            currentLevel = level;
+            matchedCount = 0;
+            
+            document.getElementById('btnLevel1').className = level === 1 ? "px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-extrabold rounded-2xl shadow-md transition transform scale-105 ring-4 ring-blue-300" : "px-5 py-3 bg-slate-200 text-slate-700 text-sm font-extrabold rounded-2xl shadow-md transition hover:bg-slate-300";
+            document.getElementById('btnLevel2').className = level === 2 ? "px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-extrabold rounded-2xl shadow-md transition transform scale-105 ring-4 ring-blue-300" : "px-5 py-3 bg-slate-200 text-slate-700 text-sm font-extrabold rounded-2xl shadow-md transition hover:bg-slate-300";
+
+            gameQuestions = level === 1 ? JSON.parse(JSON.stringify(level1Data)) : JSON.parse(JSON.stringify(level2Data));
+            
+            renderMatchGameUI();
+        }
+
+        function renderMatchGameUI() {
+            const container = document.getElementById('matchGameContainer');
+            
+            let shuffledWords = [...gameQuestions].map(q => q.word).sort(() => Math.random() - 0.5);
+
+            let html = `
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-blue-50 via-indigo-50 to-pink-50 p-4 rounded-2xl gap-2 border-2 border-blue-200 shadow-inner">
+                    <p class="text-xs sm:text-sm font-bold text-blue-950">Arahan: “Seret kad perkataan ke ruang jawapan di bawah gambar yang betul (atau klik kad, kemudian klik ruang jawapan).”</p>
+                    <span class="text-sm font-black text-blue-900 whitespace-nowrap bg-white px-4 py-2 rounded-xl shadow-sm border border-blue-100">Markah Tahap ${currentLevel}: <span id="currentLevelScore" class="text-pink-600 text-lg">${currentLevel === 1 ? scoreL1 : scoreL2}</span></span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            `;
+
+            gameQuestions.forEach((q) => {
+                html += `
+                    <div class="bg-white p-5 rounded-3xl border-2 border-blue-100 shadow-sm hover:shadow-lg transition flex flex-col items-center text-center">
+                        <div class="relative w-full h-40 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center mb-4 group shadow-inner">
+                            <img src="${q.image}" alt="${q.word}" class="w-full h-full object-cover transition transform group-hover:scale-105 duration-300" onerror="this.onerror=null; this.src='https://placehold.co/300x200/dbeafe/1e40af?text=${q.word}';">
+                            <button onclick="playWordAudio('${q.audio}', '${q.word}')" class="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white text-blue-700 p-2.5 rounded-full shadow-lg transition transform hover:scale-110" title="Dengar sebutan">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="drop-${q.id}" class="drop-zone w-full h-14 border-2 border-dashed border-blue-300 rounded-2xl flex items-center justify-center bg-blue-50/50 text-blue-400 text-sm font-bold" ondragover="allowDrop(event)" ondragleave="removeDropStyle(event)" ondrop="dropWord(event, '${q.id}')" onclick="clickDropZone('${q.id}')">
+                            Ruang Jawapan
+                        </div>
+                        <span id="feedback-${q.id}" class="text-xs mt-2 font-black min-h-[20px]"></span>
+                    </div>
+                `;
+            });
+
+            html += `</div><div class="mt-6 pt-6 border-t border-slate-100">
+                <h4 class="text-sm font-extrabold text-blue-900 mb-3">Kad Perkataan (Seret atau Klik):</h4>
+                <div id="wordBank" class="flex flex-wrap gap-3 min-h-[75px] p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-100 items-center">`;
+
+            shuffledWords.forEach((word) => {
+                html += `
+                    <div id="word-${word}" draggable="true" ondragstart="dragWord(event)" onclick="selectWordCard('${word}')" class="draggable-item bg-white border-2 border-blue-300 text-blue-800 px-5 py-2.5 rounded-2xl shadow-md text-base font-extrabold hover:bg-blue-50 hover:border-blue-500 transition animate-float">
+                        ${word}
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+
+            container.innerHTML = html;
+        }
+
+        // Drag and Drop Handlers
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function removeDropStyle(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function dragWord(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerText.trim());
+        }
+
+        function dropWord(ev, targetId) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            const dataWord = ev.dataTransfer.getData("text");
+            evaluateMatch(dataWord, targetId);
+        }
+
+        // Alternative Click Selection Handlers
+        function selectWordCard(word) {
+            document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('ring-4', 'ring-pink-400', 'bg-pink-50'));
+            selectedWordCard = word;
+            const el = document.getElementById(`word-${word}`);
+            if (el) el.classList.add('ring-4', 'ring-pink-400', 'bg-pink-50');
+        }
+
+        function clickDropZone(targetId) {
+            if (selectedWordCard) {
+                evaluateMatch(selectedWordCard, targetId);
+                selectedWordCard = null;
+                document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('ring-4', 'ring-pink-400', 'bg-pink-50'));
+            }
+        }
+
+        // Evaluation Logic with Sound Effect
+        function evaluateMatch(word, targetId) {
+            const targetQ = gameQuestions.find(q => q.id === targetId);
+            const dropZone = document.getElementById(`drop-${targetId}`);
+            const feedbackEl = document.getElementById(`feedback-${targetId}`);
+
+            if (dropZone.classList.contains('bg-emerald-50')) return;
+
+            if (targetQ && targetQ.word === word) {
+                // Play success sound effect when placed into the correct box
+                const successAudio = document.getElementById('successSound');
+                if (successAudio) {
+                    successAudio.currentTime = 0;
+                    successAudio.play().catch(e => console.log('Effect audio play blocked:', e));
+                }
+
+                // Correct Match
+                dropZone.innerHTML = `<span class="text-emerald-700 font-black text-base flex items-center gap-1.5 animate-bounce">✓ ${word}</span>`;
+                dropZone.className = "drop-zone w-full h-14 border-2 border-emerald-500 rounded-2xl flex items-center justify-center bg-emerald-50 shadow-md";
+                feedbackEl.innerHTML = `<span class="text-emerald-600 font-extrabold">Bagus! Padanan betul! ⭐</span>`;
+                
+                // Remove word from bank
+                const wordEl = document.getElementById(`word-${word}`);
+                if (wordEl) wordEl.remove();
+
+                // Add score (+10 points)
+                if (currentLevel === 1) {
+                    scoreL1 += 10;
+                    document.getElementById('currentLevelScore').innerText = scoreL1;
+                } else {
+                    scoreL2 += 10;
+                    document.getElementById('currentLevelScore').innerText = scoreL2;
+                }
+                
+                updateTotalScore();
+                matchedCount++;
+
+                // Check if level completed
+                if (matchedCount === gameQuestions.length) {
+                    setTimeout(() => {
+                        showLevelCompleteModal();
+                    }, 500);
+                }
+
+            } else {
+                // Incorrect Match
+                feedbackEl.innerHTML = `<span class="text-rose-500 font-extrabold animate-pulse">Belum tepat. Cuba lagi! ❌</span>`;
+                setTimeout(() => {
+                    feedbackEl.innerHTML = ``;
+                }, 2000);
+            }
+        }
+
+        function updateTotalScore() {
+            document.getElementById('totalMatchScore').innerText = scoreL1 + scoreL2;
+        }
+
+        function showLevelCompleteModal() {
+            const container = document.getElementById('matchGameContainer');
+            const maxScore = currentLevel === 1 ? 30 : 60;
+            const currentScore = currentLevel === 1 ? scoreL1 : scoreL2;
+
+            container.innerHTML = `
+                <div class="text-center py-12 space-y-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-pink-50 rounded-3xl p-8 border-2 border-blue-200 shadow-inner">
+                    <div class="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 text-white p-5 rounded-full shadow-2xl text-4xl animate-bounce">🏆</div>
+                    <h3 class="text-3xl font-black text-blue-950">Tahniah! Tahap ${currentLevel} Selesai! 🎉</h3>
+                    <p class="text-blue-900 font-bold text-lg">Jumlah markah anda untuk tahap ini: <span class="font-black text-pink-600 text-2xl ml-1">${currentScore} / ${maxScore}</span></p>
+                    <p class="text-sm font-semibold text-slate-600">"Syabas! Teruskan kecemerlangan dan semangat membara kamu!" ✨</p>
+                    <div class="flex flex-wrap justify-center gap-3 pt-4">
+                        <button onclick="startMatchGame(${currentLevel})" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-7 py-3.5 rounded-2xl font-extrabold shadow-lg transition transform hover:scale-105">🔄 Main Semula</button>
+                        <button onclick="switchTab('games')" class="bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 px-7 py-3.5 rounded-2xl font-extrabold shadow-sm transition">⬅️ Kembali ke Menu Permainan</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Audio Helper
+        function playWordAudio(audioPath, word) {
+            const audio = new Audio(audioPath);
+            audio.play().catch(e => {
+                console.log(`Audio file ${audioPath} not found or blocked. Word spoken: ${word}`);
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'ms-MY';
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
